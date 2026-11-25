@@ -28,31 +28,58 @@ and [v4](https://github.com/TheNetsky/Microsoft-Rewards-Script/tree/v4).
 - [Setup and usage](docs/usage.md) — local, Nix and Docker installation, accounts, settings, commands and troubleshooting.
 - [Control API](docs/control-api.md) — authentication, endpoints, run control, scheduling and dashboard data.
 
-## Setup
+## Setup (Ubuntu / Linux Mint)
 
-Requires Node.js 24 or newer.
+1.Install prerequisites and Node.js 24+
 
+```sh
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg git
+curl -fsSL https://deb.nodesource.com/setup_24.x -o /tmp/nodesource_setup.sh
+sudo -E bash /tmp/nodesource_setup.sh
+sudo apt install -y nodejs
+```
+
+Verify the installation:
+```sh
+node -v
+npm -v
+```
+
+2. Clone the repository
+```sh
+git clone --branch v5 https://github.com/TheNetsky/Microsoft-Rewards-Script.git
+cd Microsoft-Rewards-Script
+```
+
+3. Configure accounts (`.env`)
+Copy env.example to .env and fill in your credentials:
+```sh
+cp env.example .env
+nano .env
+```
+
+4. Install dependencies, Chromium, build and sync config
 ```sh
 npm ci
 npm run install:browser
 npm run build
-cp env.example .env
-cp config.example.json config.json
+node dist/config/ConfigSync.js sync --patch
 ```
 
-On Linux, install Chromium's system libraries with
-`npx patchright install --with-deps chromium`.
-On Windows, copy the example files with File Explorer or PowerShell's `Copy-Item`.
+- npm run install:browser downloads Patchright's Chromium (ubuntu24.04-x64 build on Ubuntu/Mint) along with FFmpeg and Headless Shell.
 
-Set `ACCOUNT_1_EMAIL` and the relevant sign-in settings in `.env`, then run:
+- node dist/config/ConfigSync.js sync --patch automatically generates config.json from the built-in defaults if it does not exist yet (or patches an existing config.json with new default fields).
 
+- If Chromium fails to launch due to missing OS libraries on a minimal Ubuntu/Mint install, install system dependencies with:
+```sh
+npx patchright install-deps chromium
+```
+
+5. Run the script
 ```sh
 npm start
 ```
-
-Add another numbered account block for each account. Passwords are optional for
-passwordless accounts. See [env.example](env.example) for account variables and
-[Setup and usage](docs/usage.md#accounts-and-sessions) for login options.
 
 ## Modes and settings
 
